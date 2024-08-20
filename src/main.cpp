@@ -30,7 +30,9 @@ Chip dp(int id, int last) {
 
 
     // testa todas as manobras possíveis
-    for (int action = 0; action < K; action++) {
+    for (int action = 0; action < (1<<K); action++) {
+
+        // TODO: iterar nos bits de action
         int penalidade;
         if (last == action) {
             penalidade = t[action].bonus / 2; // aplica a penalidade por repetir a mesma manobra
