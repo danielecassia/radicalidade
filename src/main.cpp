@@ -59,11 +59,11 @@ Chip dp(int id, int lastAction) {
         }
         else updateScore(id, action, points, lastAction, r, 0);
     }
-    debug(id);
-    debug(lastAction);
-    debug(r);
-    debug(a);
-    cout<<"----------------------------------"<<endl;
+    // debug(id);
+    // debug(lastAction);
+    // debug(r);
+    // debug(a);
+    // cout<<"----------------------------------"<<endl;
     return {a, r}; // retorna o melhor resultado para o estado atual
 }
 
@@ -74,7 +74,7 @@ void printAction(int a){
     while (a>0) {
         if(a&1) cout<<pow<<" ";
         a>>=1;
-        pow=2;
+        pow++;
     }
     cout<<endl;
 }
@@ -99,7 +99,13 @@ int main() {
     cout << record << endl;
 
     //imprime quantidade e quais manobras foram utilizadas em cada seção
-    for(int i=0;i<N;i++) printAction(action-i);
+    int lastAction = 0; // Ação inicial
+    for (int i = 0; i < N; i++) {
+        auto [currentAction, _] = MEM[i][lastAction];
+            printAction(currentAction);
+            lastAction = currentAction;
+    }
+
 
     return 0;
 }
