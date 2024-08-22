@@ -9,7 +9,7 @@
 #---------------------------------------------------------------------
 
 CC       = g++
-CFLAGS   = -std=c++11 -Wall -I. -I$(INCLUDEDIR)
+CFLAGS   = -std=c++17 -Wall -I. -I$(INCLUDEDIR)
 
 LINKER   = g++
 LFLAGS   = -Wall -I. -I$(INCLUDEDIR) -lm

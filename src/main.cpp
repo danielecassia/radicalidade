@@ -6,53 +6,69 @@ using namespace std;
 
 #define bonus first
 #define time second
+#define countBits __builtin_popcount
+#define debug(x) cout<<#x <<"= "<<x<<endl
 
 typedef vector<pair<ll,ll>> Sections;
 typedef vector<pair<ll,ll>> Tricks;
 
 struct Chip {
-    int action; // Ação escolhida (manobra)
-    ll record;  // Pontuação obtida
+    int action; // manobra
+    ll record;  // bonificação relacionada
 };
 
-Sections s;   // Vetor que guarda as seções da pista
-Tricks t;     // Vetor que guarda as manobras possíveis
+Sections s;   // seções da pista
+Tricks t;     // manobras possíveis
 int N, K;     // Número de seções e manobras
-vector<vector<Chip>> MEM; // Matriz de memória para PD
+vector<vector<Chip>> MEM; // Matriz de memória para DP
 
+void updateScore(int id, int action, int points, int lastAction, ll r, ll nextR){
+    ll currentScore = s[id].bonus * countBits(action) * points + nextR;
+    if(currentScore > r ){
+        MEM[id][lastAction] = {action,currentScore};
+    }
+}
 
-Chip dp(int id, int last) {
-    // caso base: se chegamos ao final da pista
-    if (id == N) return {0, 0};
+Chip dp(int id, int lastAction) {
 
-    auto &[a, r] = MEM[id][last]; // referência ao estado atual da DP
+    auto &[a, r] = MEM[id][lastAction]; // referência ao estado atual da DP
     if (a != -1) return {a, r};   // se já foi calculado, retorna o resultado
 
 
     // testa todas as manobras possíveis
     for (int action = 0; action < (1<<K); action++) {
+        // verifica se é possivel fazer essas manobras no tempo da seção
+        int actionsTimes =0;
+        for(int b=0;b<K;b++){
+            if(action&(1<<b)) actionsTimes+= t[b].time;
+        }
 
-        // TODO: iterar nos bits de action
-        int penalidade;
-        if (last == action) {
-            penalidade = t[action].bonus / 2; // aplica a penalidade por repetir a mesma manobra
-        } else {
-            penalidade = t[action].bonus;     // nenhuma penalidade, usa o bônus original
+        if(s[id].time < actionsTimes) continue;
+
+        ll points = 0;
+        for(int b=0;b<K;b++){
+            if(action&(1<<b)) //olhar se a manobra foi feita
+            {
+                points += (lastAction&(1<<b)) ? t[b].bonus / 2 : t[b].bonus; // define a pontuação baseado no lastAction
+            }
         }
 
         if(id < N-1){
             auto [nextA, nextR] = dp(id + 1, action); // calcula o próximo estado
-            ll currentScore = t[id].bonus * penalidade + nextR;
-            r = max(currentScore, r);
-            a = action;
+            updateScore(id, action, points, lastAction, r, nextR);
         }
+        else updateScore(id, action, points, lastAction, r, 0);
     }
-
+    debug(id);
+    debug(lastAction);
+    debug(r);
+    debug(a);
+    cout<<"----------------------------------"<<endl;
     return {a, r}; // retorna o melhor resultado para o estado atual
 }
 
 void printAction(int a){
-    int len = __builtin_popcount(a);
+    int len = countBits(a);
     cout<<len <<" ";
     int pow=1;
     while (a>0) {
@@ -70,7 +86,7 @@ int main() {
     // aloca memória para os vetores de seções e manobras
     s.resize(N);
     t.resize(K);
-    MEM.resize(N, vector<Chip>(K, {-1, 0})); // inicializa a matriz de memória
+    MEM.resize(N, vector<Chip>(1<<K, {-1, 0})); // inicializa a matriz de memória
 
     // guarda os dados das seções e das manobras
     for (int i = 0; i < N; i++) cin >> s[i].bonus >> s[i].time;
@@ -81,10 +97,9 @@ int main() {
 
     // imprime a pontuação total máxima
     cout << record << endl;
-    cout << action << endl;
 
     //imprime quantidade e quais manobras foram utilizadas em cada seção
-    printAction(action);
+    for(int i=0;i<N;i++) printAction(action-i);
 
     return 0;
 }
