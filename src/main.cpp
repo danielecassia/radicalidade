@@ -8,6 +8,7 @@ using namespace std;
 #define time second
 #define countBits __builtin_popcount
 #define debug(x) cout<<#x <<"= "<<x<<endl
+#define getBit(x,b) (x&(1<<b))
 
 typedef vector<pair<ll,ll>> Sections;
 typedef vector<pair<ll,ll>> Tricks;
@@ -40,16 +41,16 @@ Chip dp(int id, int lastAction) {
         // verifica se é possivel fazer essas manobras no tempo da seção
         int actionsTimes =0;
         for(int b=0;b<K;b++){
-            if(action&(1<<b)) actionsTimes+= t[b].time;
+            if(getBit(action,b)) actionsTimes+= t[b].time;
         }
 
         if(s[id].time < actionsTimes) continue;
 
         ll points = 0;
         for(int b=0;b<K;b++){
-            if(action&(1<<b)) //olhar se a manobra foi feita
+            if(getBit(action,b)) //olhar se a manobra foi feita
             {
-                points += (lastAction&(1<<b)) ? t[b].bonus / 2 : t[b].bonus; // define a pontuação baseado no lastAction
+                points += getBit(lastAction,b) ? t[b].bonus / 2 : t[b].bonus; // define a pontuação baseado no lastAction
             }
         }
 
